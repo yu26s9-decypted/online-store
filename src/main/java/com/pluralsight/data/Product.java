@@ -45,6 +45,14 @@ public class Product {
         this.department = department;
     }
 
+    @Override
+    public String toString() {
+        return  "Product Sku" + sku +
+                "Item:" + productName +
+                "Price:" + producePrice +
+                "Department:" + department;
+    }
+
 
 
 
