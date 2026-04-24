@@ -15,8 +15,6 @@ public class Main {
 
 
 
-//        System.out.println(productsInventory.toString());
-
         String storeHomeScreenMenu = """
                 Welcome! What would you like to do?
                 1. Display Products
@@ -33,14 +31,11 @@ public class Main {
             switch (userInput) {
                 case 1:
                     listAllProducts(productsInventory);
-                    System.out.println("case 1");
                     break;
                 case 2:
                     displayCartMenu();
-                    System.out.println("case 2");
                     break;
                 case 3:
-                    System.out.println("Thank you!");
                     return;
             }
         } while (userInput != 3);
@@ -105,42 +100,40 @@ public class Main {
 
     public static void addProductToCart(ArrayList<Product> product) {
 
-       while (true) {
-           String checkOutMenu = """
-                What's the SKU of the item?
-                """;
-           String userSkuInput;
-           userSkuInput = Console.askForString("Enter SKU (or type x to exit): ");
+        while (true) {
+            String checkOutMenu = """
+                    What's the SKU of the item?
+                    """;
+            String userSkuInput;
+            userSkuInput = Console.askForString("Enter SKU (or type x to exit): ");
 
-           if(userSkuInput.equalsIgnoreCase("X")) {
-               break;
-           }
+            if (userSkuInput.equalsIgnoreCase("X")) {
+                break;
+            }
 
-           boolean hasFoundSku = false;
+            boolean hasFoundSku = false;
 
 
-           for (Product p : product) {
-               if (p.getSku().equalsIgnoreCase(userSkuInput.toLowerCase())) {
-                   System.out.printf("Added %s %s %s $%.2f to your cart.\n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
-                   userCart.add(p);
-                   hasFoundSku = true;
-               }
-           }
-           if (!hasFoundSku) {
-               System.out.println("This item doesn't exist at our store.");
-           }
-       }
+            for (Product p : product) {
+                if (p.getSku().equalsIgnoreCase(userSkuInput.toLowerCase())) {
+                    System.out.printf("Added %s %s %s $%.2f to your cart.\n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
+                    userCart.add(p);
+                    hasFoundSku = true;
+                }
+            }
+            if (!hasFoundSku) {
+                System.out.println("This item doesn't exist at our store.");
+            }
+        }
     }
 
-    public static void displayCartMenu(){
+    public static void displayCartMenu() {
         System.out.println("Your cart");
-        if(userCart.isEmpty()) {
+        if (userCart.isEmpty()) {
             System.out.println("Cart empty.");
-        };
-
-        for (Product p : userCart){
-            System.out.printf("%s %s %s $%.2f \n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
         }
+        ;
+
 
         String cartMenuMsg = """
                 Ready to checkout?
@@ -151,14 +144,20 @@ public class Main {
                 Enter your command:
                 """;
 
+        for (Product p : userCart) {
+            System.out.printf("%s %s %s $%.2f \n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
+
+        }
+
         int userInput;
         do {
-            userInput = Console.askForInt(cartMenuMsg, 1,3);
-            switch (userInput){
+            userInput = Console.askForInt(cartMenuMsg, 1, 3);
+            switch (userInput) {
                 case 1:
-                    break;
+                    checkOutItem();
+                    return;
                 case 2:
-                    removeProductFromCart(userCart);
+                    removeProductFromCart();
                     break;
                 case 3:
                     return;
@@ -167,33 +166,69 @@ public class Main {
 
     }
 
-    public static void removeProductFromCart(ArrayList<Product> product){
-        if(userCart.isEmpty()) {
+    public static void removeProductFromCart() {
+        if (userCart.isEmpty()) {
             System.out.printf("You don't have any items in your cart yet!");
         }
-        for (Product p : userCart){
-            System.out.printf("%s %s %s $%.2f \n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
-        }
+        while (true) {
 
-        String userSkuInput = Console.askForString("Enter SKU of item to remove: ");
-        boolean skuExist = false;
+            String userSkuInput;
+            userSkuInput = Console.askForString("Enter Item SKU to remove (or type x to exit): ");
 
-        for (Product p : userCart) {
-            if (p.getSku().equalsIgnoreCase(userSkuInput.toLowerCase())) {
-                System.out.printf("Removed %s %s %s $%.2f to your cart.\n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
-                userCart.remove(p);
-                skuExist = true;
+            if (userSkuInput.equalsIgnoreCase("X")) {
                 break;
             }
+
+            for (Product p : userCart) {
+                System.out.printf("%s %s %s $%.2f \n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
+            }
+            System.out.printf("\n =============== \n");
+
+            boolean skuExist = false;
+
+            for (Product p : userCart) {
+                if (p.getSku().equalsIgnoreCase(userSkuInput.toLowerCase())) {
+                    System.out.printf("Removed %s %s %s $%.2f to your cart.\n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
+                    userCart.remove(p);
+                    skuExist = true;
+                    break;
+                }
+            }
+            if (!skuExist) {
+                System.out.println("The SKU of this item doesn't exist.");
+            }
+
+
         }
-        if (!skuExist) {
-            System.out.println("The SKU of this item doesn't exist.");
+
+    }
+
+    public static void checkOutItem(){
+
+        double totalPrice = 0;
+        System.out.printf("| SKU |   | Item |     | Dep |   | Price |\n");
+
+        for (Product p : userCart) {
+            System.out.printf("%s %10s %10s $%.2f \n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
+            totalPrice += p.getProducePrice();
         }
+        System.out.printf("Total price: $%.2f", totalPrice);
 
-
-
-
-
+        double userPaymentAmount;
+        double change;
+        while (true) {
+            userPaymentAmount = Console.askForDouble("Enter cash amount");
+            if(userPaymentAmount >= totalPrice){
+                change = userPaymentAmount - totalPrice ;
+                System.out.printf("\n Thank you for shopping with us!" +
+                        "\n Your total change: $%.2f \n", change);
+                break;
+            } else {
+                double difference = totalPrice - userPaymentAmount;
+                System.out.printf("You don't have enough!" +
+                        "You need $%.2f to make up the deficit \n", difference);
+            };
+        }
     }
 
 }
