@@ -8,9 +8,11 @@ import java.util.ArrayList;
 
 public class Main {
     private final static ProductFileManager productFileManager = new ProductFileManager("src/main/java/com/pluralsight/data/products.csv");
-    public static void main(String[] arg){
-        ArrayList<Product> productsInventory = productFileManager.loadAllProduct();
-        ArrayList<Product> userCart = new ArrayList<>();
+    private static ArrayList<Product> userCart = new ArrayList<>();
+    private static ArrayList<Product> productsInventory = productFileManager.loadAllProduct();
+    public static void main(String[] arg) {
+
+
 
 //        System.out.println(productsInventory.toString());
 
@@ -25,14 +27,15 @@ public class Main {
 
         int userInput;
         do {
-            userInput = Console.askForInt(storeHomeScreenMenu, 1,3);
+            userInput = Console.askForInt(storeHomeScreenMenu, 1, 3);
 
-            switch (userInput){
+            switch (userInput) {
                 case 1:
                     listAllProducts(productsInventory);
                     System.out.println("case 1");
                     break;
                 case 2:
+                    displayCart();
                     System.out.println("case 2");
                     break;
                 case 3:
@@ -42,10 +45,9 @@ public class Main {
         } while (userInput != 3);
 
 
-
     }
 
-    public static void listAllProducts(ArrayList<Product> products){
+    public static void listAllProducts(ArrayList<Product> products) {
         String displayProductMenu = """
                 What would you like to do?
                 1. Search/Filter a product
@@ -56,15 +58,15 @@ public class Main {
 
         int userInputDisplayMenu;
         System.out.println("====== PRODUCT CATALOG ======");
-        for (int i = 0; i < products.size(); i++){
+        for (int i = 0; i < products.size(); i++) {
             Product p = products.get(i);
-            System.out.printf("%s %s %s $%.2f\n", p.getSku(), p.getProductName(),p.getDepartment(), p.getProducePrice());
+            System.out.printf("%s %s %s $%.2f\n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
         }
         System.out.println("====== PRODUCT CATALOG END ======");
 
         do {
-            userInputDisplayMenu = Console.askForInt(displayProductMenu, 1,3);
-            switch (userInputDisplayMenu){
+            userInputDisplayMenu = Console.askForInt(displayProductMenu, 1, 3);
+            switch (userInputDisplayMenu) {
                 case 1:
                     searchForProduct(products);
                     break;
@@ -75,54 +77,60 @@ public class Main {
                     return;
 
             }
-        }   while (userInputDisplayMenu != 3);
+        } while (userInputDisplayMenu != 3);
     }
 
-    public static void searchForProduct(ArrayList<Product> product){
+    public static void searchForProduct(ArrayList<Product> product) {
         String userSearchInput = Console.askForString("What are you looking for: ");
         boolean hasFound = false;
-        for(Product p : product) {
+        for (Product p : product) {
             if (p.getProductName().toLowerCase().contains(userSearchInput.toLowerCase())) {
-                System.out.printf("%s %s %s $%.2f\n", p.getSku(), p.getProductName(),p.getDepartment(), p.getProducePrice());
+                System.out.printf("%s %s %s $%.2f\n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
                 hasFound = true;
 
             }
         }
 
-        if(!hasFound){
+        if (!hasFound) {
             System.out.println("No result was found!");
         }
     }
 
-    public static void addProductToCart(ArrayList<Product> product){
+
+    public static void addProductToCart(ArrayList<Product> product) {
 
         String checkOutMenu = """
                 What's the SKU of the item?
                 """;
-
         String userSkuInput;
         userSkuInput = Console.askForString("Enter SKU: ");
         boolean hasFoundSku = false;
-        for(Product p : product) {
-            if (p.getSku().toLowerCase().contains(userSkuInput.toLowerCase()))
-            {
-                System.out.printf("Added %s %s %s $%.2f to your cart.\n", p.getSku(), p.getProductName(),p.getDepartment(), p.getProducePrice());
+
+        for (Product p : product) {
+            if (p.getSku().equalsIgnoreCase(userSkuInput.toLowerCase())) {
+                System.out.printf("Added %s %s %s $%.2f to your cart.\n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
+                userCart.add(p);
                 hasFoundSku = true;
-            }
-            if (!hasFoundSku) {
-                System.out.println("This item doesn't exist at our store.");
+
+
+
             }
         }
-
-
-
-
-
-
-
-
+        if (!hasFoundSku) {
+            System.out.println("This item doesn't exist at our store.");
+        }
     }
 
+    public static void displayCart(){
+        System.out.println("Your cart");
 
+        if(userCart.isEmpty()) {
+            System.out.println("Cart empty.");
+        };
 
+        for (Product p : userCart){
+            System.out.printf("%s %s %s $%.2f \n", p.getSku(), p.getProductName(), p.getDepartment(), p.getProducePrice());
+        }
+
+    }
 }
